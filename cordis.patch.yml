@@ -1,0 +1,26 @@
+# dsh-llm-queue bundle patch
+#
+# 在组合树里插入一条 `llm-queue` 行。插件本身只挂 `llm/stream` 瀑布流钩子，
+# 不接管任何 HTTP 客户端：provider 命中的请求排队，其余原样直连。
+#
+# 这里的 config 是「出厂默认值」。面板保存后会写到 $DSH_HOME/llm-queue/config.json，
+# 该文件优先于这里的默认值（方便面板热改而不动 profile 配置）。
+- insert:
+    - id: llm-queue
+      name: dsh-llm-queue
+      config:
+        enabled: true
+        logSize: 200
+        routes:
+          - id: modelflare
+            name: ModelFlare（低价路由）
+            providers:
+              - modelflare
+            models: []
+            enabled: true
+            rate:
+              mode: spaced
+              rpm: 3
+              burst: 1
+              max_concurrent: 1
+              max_wait_seconds: 0
