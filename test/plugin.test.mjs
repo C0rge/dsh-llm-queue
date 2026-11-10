@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 
 import { QueueManager, normalizeConfig } from '../lib/queue.js';
+
+// 插件启动时会优先读取 $DSH_HOME/llm-queue/config.json；不隔离的话会读到
+// 用户本机的真实配置，把测试里传入的 routes 覆盖掉（表现为「车道匹配不上、
+// 请求被直接透传」）。这里指向临时目录，保证测试只看自己传的配置。
+process.env.DSH_HOME = mkdtempSync(join(tmpdir(), 'dsh-llm-queue-'));
 
 /** 最小的假 ctx：只实现插件用到的 on/logger/inject/get。 */
 function fakeContext() {
