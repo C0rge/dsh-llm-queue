@@ -1,6 +1,6 @@
 {
   "name": "dsh-llm-queue",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Per-provider request queue & rate limiter for DeepSeek Harness: over-budget requests wait in a FIFO lane instead of failing with 429, with a native settings page in the DSH desktop UI.",
   "type": "module",
   "main": "lib/index.js",

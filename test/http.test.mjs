@@ -135,6 +135,30 @@ test('保存配置会落盘并即时生效', async () => {
   assert.equal(state.lanes[0].rate.rpm, 10);
 });
 
+test('保存前会把上一版配置备份成 config.json.bak', async () => {
+  const beforeSave = readFileSync(join(home, 'llm-queue', 'config.json'), 'utf8');
+  const out = await call('/api/llm-queue/config', {
+    method: 'PUT',
+    body: {
+      enabled: true,
+      logSize: 30,
+      routes: [
+        {
+          id: 'claude-lowprice',
+          name: 'Claude（低价路由）',
+          providers: ['claude'],
+          models: [],
+          enabled: true,
+          rate: { mode: 'spaced', rpm: 3, burst: 1, max_concurrent: 3, max_wait_seconds: 0 },
+        },
+      ],
+    },
+  });
+  assert.equal(out.status, 200);
+  const backup = readFileSync(join(home, 'llm-queue', 'config.json.bak'), 'utf8');
+  assert.equal(backup, beforeSave, '备份内容必须等于覆盖前的那一版');
+});
+
 test('非法配置被拒绝，且不覆盖已保存的配置', async () => {
   const before = readFileSync(join(home, 'llm-queue', 'config.json'), 'utf8');
   const out = await call('/api/llm-queue/config', {
